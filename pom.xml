@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.app3.samples</groupId>
+    <artifactId>sample-model-jooq-with-access-control-and-orders</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <properties>
+        <jooq.version>3.5.1</jooq.version>
+        <postgresql.version>9.3-1102-jdbc41</postgresql.version>
+        <liquibase.version>3.3.2</liquibase.version>
+        <jdbcDriverClass>org.postgresql.Driver</jdbcDriverClass>
+        <hibernateDialect>hibernate:spring:com.pr.domain?dialect=org.hibernate.dialect.PostgreSQL82Dialect
+        </hibernateDialect>
+        <liquibase-hibernate4.version>3.5</liquibase-hibernate4.version>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jooq</artifactId>
+            <version>${jooq.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+            <version>${liquibase.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jetty-servlet</artifactId>
+                    <groupId>org.eclipse.jetty</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <version>${liquibase.version}</version>
+                <configuration>
+                    <changeLogFile>src/main/resources/liquibase/master.xml</changeLogFile>
+                    <diffChangeLogFile>
+                        src/main/resources/config/liquibase/${maven.build.timestamp}_changelog.xml
+                    </diffChangeLogFile>
+                    <driver>${jdbcDriverClass}</driver>
+                    <url>jdbc:postgresql:sample</url>
+                    <defaultSchemaName/>
+                    <dropFirst>true</dropFirst>
+                    <!--<username></username>-->
+                    <!--<password></password>-->
+                    <referenceUrl>hibernate:spring:com.pr.domain?dialect=org.hibernate.dialect.PostgreSQL82Dialect
+                    </referenceUrl>
+                    <!--<referenceUrl>${hibernateDialect}</referenceUrl>-->
+                    <verbose>true</verbose>
+                    <logging>debug</logging>
+                    <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.javassist</groupId>
+                        <artifactId>javassist</artifactId>
+                        <version>3.18.2-GA</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.liquibase.ext</groupId>
+                        <artifactId>liquibase-hibernate4</artifactId>
+                        <version>${liquibase-hibernate4.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-data-jpa</artifactId>
+                        <version>1.2.0.RELEASE</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <!-- Specify the maven code generator plugin -->
+                <groupId>org.jooq</groupId>
+                <artifactId>jooq-codegen-maven</artifactId>
+                <version>3.5.1</version>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                        <version>${postgresql.version}</version>
+                    </dependency>
+                </dependencies>
+
+                <!-- Specify the plugin configuration.
+                     The configuration format is the same as for the standalone code generator -->
+                <configuration>
+
+                    <!-- JDBC connection parameters -->
+                    <jdbc>
+                        <driver>${jdbcDriverClass}</driver>
+                        <url>jdbc:postgresql:sample</url>
+<!--replace with your username-->
+                        <user>wm</user>
+
+                        <!--<password></password>-->
+                    </jdbc>
+
+                    <!-- Generator parameters -->
+                    <generator>
+                        <generate>
+                            <daos>true</daos>
+                        </generate>
+                        <name>org.jooq.util.JavaGenerator</name>
+                        <database>
+                            <name>org.jooq.util.postgres.PostgresDatabase</name>
+                            <includes>.*</includes>
+                            <excludes/>
+                            <inputSchema>public</inputSchema>
+                        </database>
+                        <target>
+                            <packageName>com.app3.jooq</packageName>
+                            <directory>src/main/generated</directory>
+                        </target>
+                    </generator>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+
+</project>
