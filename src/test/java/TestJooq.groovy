@@ -52,7 +52,7 @@ public class TestJooq {
     }
 
     void cleanup() {
-
+        // Clear all known tables in a very specific order.
         [ORDER_ITEM, PRODUCT, ORDER, GROUP_ROLE, ROLE, GROUP_USER, GROUP, ASSET, ACCOUNT, USER].each {
             create.delete(it).execute()
         }
@@ -60,25 +60,29 @@ public class TestJooq {
 
     @Test()
     void testBuildModel() {
-        def record = create.insertInto(USER, USER.LOGIN)
+        // Create some user who will owns multiple account
+        def owner_uid = create.insertInto(USER, USER.LOGIN)
                 .values(OWNER)
                 .returning(USER.ID)
-                .fetchOne()
-        println record
+                .fetchOne().getValue(USER.ID)
 
+        // Create accounts and fill them with users, groups, and assets
+        ["Mega Corp", "Other Corp", "Small Corp"].eachWithIndex { it, index ->
 
-        ["Mega Corp","Other Corp","Small Corp"].eachWithIndex{ it, index ->
+            // the account -- note association to owner_uid
+            def aid = create.insertInto(ACCOUNT, ACCOUNT.NAME, ACCOUNT.OWNER_ID).values(it, owner_uid).returning(ACCOUNT.ID).fetchOne().getValue(ACCOUNT.ID)
 
-            def aid = create.insertInto(ACCOUNT, ACCOUNT.NAME, ACCOUNT.OWNER_ID).values(it, record.getValue(USER.ID)).returning(ACCOUNT.ID).fetchOne().getValue(ACCOUNT.ID)
-
+            // batch create a couple groups within this account
             def results = create.insertInto(GROUP, GROUP.ACCOUNT_ID, GROUP.NAME)
                     .values(aid, "all")
                     .values(aid, "managers")
                     .returning(GROUP.ID)
                     .fetch()
-            def gids = results.collect { it.getValue(GROUP.ID) }
-            def all_gid = gids[0], management_gid = gids[1]
 
+            // grab the group identifiers
+            def (all_gid, management_gid) = results.collect { it.getValue(GROUP.ID) }
+
+            // Make some employee users
             (1..5).each {
                 def uid = create.insertInto(USER, USER.LOGIN)
                         .values("user-${index}-${it}")
@@ -163,7 +167,7 @@ public class TestJooq {
         def r = ROLE.as("r")
         def u = USER.as("u")
         def gu = GROUP_USER.as("gu")
-        create.selectDistinct(u.LOGIN,r.NAME.as("role_name"),acc.NAME.as("account_name")).from(ast)
+        create.selectDistinct(u.LOGIN, r.NAME.as("role_name"), acc.NAME.as("account_name")).from(ast)
                 .join(acc).on(ast.ACCOUNT_ID.eq(acc.ID))
                 .join(g).on(g.ACCOUNT_ID.eq(acc.ID))
                 .join(gu).on(gu.GROUP_ID.eq(g.ID))
@@ -175,7 +179,7 @@ public class TestJooq {
                 .execute()
 
         // All user role assignments and associated account name
-        create.selectDistinct(u.LOGIN,r.NAME.as("role_name"),acc.NAME.as("account_name")).from(ast)
+        create.selectDistinct(u.LOGIN, r.NAME.as("role_name"), acc.NAME.as("account_name")).from(ast)
                 .join(acc).on(ast.ACCOUNT_ID.eq(acc.ID))
                 .join(g).on(g.ACCOUNT_ID.eq(acc.ID))
                 .join(gu).on(gu.GROUP_ID.eq(g.ID))

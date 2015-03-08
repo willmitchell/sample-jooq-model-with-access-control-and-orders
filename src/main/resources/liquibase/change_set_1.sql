@@ -1,12 +1,19 @@
+-- NOTE: The purpose of this model is to teach some ideas about how to deal with relations across many
+-- tables when using JOOQ, not to explore what goes into a "user" table.  Throughout the model, the
+-- overriding goal is to provide a minimal structure for each table; just enough to support self-descriptive
+-- queries.
+
 CREATE TABLE "user" (
   id    SERIAL PRIMARY KEY                     NOT NULL,
   login VARCHAR(64)                            NOT NULL UNIQUE
+
+  -- no password?  correct.  see above paragraph.
 );
 
 CREATE TABLE account (
   id                SERIAL PRIMARY KEY                     NOT NULL,
   name              VARCHAR(128)                           NOT NULL,
-  parent_account_id BIGINT REFERENCES account              NULL,
+  parent_account_id BIGINT REFERENCES account              NULL, -- feature not fully explored in tests yet
   owner_id          BIGINT REFERENCES "user"               NOT NULL
 );
 
