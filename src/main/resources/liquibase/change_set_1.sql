@@ -5,15 +5,16 @@ CREATE TABLE "user" (
 
 CREATE TABLE account (
   id                SERIAL PRIMARY KEY                     NOT NULL,
+  name              VARCHAR(128)                           NOT NULL,
   parent_account_id BIGINT REFERENCES account              NULL,
   account_owner     BIGINT REFERENCES "user"               NOT NULL
 );
 
 CREATE TABLE asset (
-  id          SERIAL PRIMARY KEY             NOT NULL,
-  address     VARCHAR(255)                   NOT NULL,
-  location    POINT                          NOT NULL,
-  account_id  BIGINT REFERENCES account      NOT NULL
+  id         SERIAL PRIMARY KEY             NOT NULL,
+  address    VARCHAR(255)                   NOT NULL,
+  location   POINT                          NOT NULL,
+  account_id BIGINT REFERENCES account      NOT NULL
 );
 
 CREATE TABLE product (
@@ -56,6 +57,3 @@ CREATE TABLE group_roles (
   group_id BIGINT REFERENCES "group"                    NOT NULL,
   role_id  BIGINT REFERENCES "role"                     NOT NULL
 );
-
-
-ALTER TABLE "user" ADD COLUMN account_id INT UNIQUE NULL;

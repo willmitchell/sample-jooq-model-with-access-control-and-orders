@@ -14,7 +14,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException
 
-import static com.app3.jooq.Tables.USER;
+import static com.app3.jooq.Tables.*;
 
 /**
  * Test various JOOQ facilities.
@@ -33,27 +33,34 @@ public class TestJooq {
             connection = DriverManager.getConnection(url, user, pass);
             assert connection
             create = DSL.using(connection, SQLDialect.POSTGRES);
-            create.settings().executeLogging=true
+            create.settings().executeLogging = true
             assert create
         } catch (SQLException e) {
             System.out.println("e = " + e);
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+
+        cleanup()
     }
 
     @AfterTest
-    void cleanup(){
+    void cleanup() {
+        create.delete(ACCOUNT).execute()
         create.delete(USER).execute()
     }
 
     @Test()
-    void testInsert() {
-        print "In testInsert"
-        assert create
-        create.insertInto(USER, USER.LOGIN)
+    void testBuildModel() {
+        def record = create.insertInto(USER, USER.LOGIN)
                 .values("admin")
-                .values("other").execute()
-        print "DONE: In testInsert"
+                .returning(USER.ID)
+                .fetchOne()
+        println record
+
+        create.insertInto(ACCOUNT, ACCOUNT.NAME, ACCOUNT.ACCOUNT_OWNER).values("mega", record.getValue(USER.ID)).execute()
+
     }
+
+
 }
