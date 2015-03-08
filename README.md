@@ -4,15 +4,16 @@ data access library using JOOQ.
 To try it out:
 
  - install postgresql locally or alter code accordingly
- - modify pom.xml, line 121 with your postgresql username (this should go away)
  - createdb sampledb
+ - cp env.sh.sample env.sh # and then modify accordingly
+ - . env.sh # load the environment variables
  - mvn resources:resources liquibase:update compile
 
-The last step above should copy the liquibase config stuff -- including the SQL ddl file
-into a spot where the liquibase classloader can find it.  Then, it will invoke the
- JOOQ code generator which will put tons-o DAO code under src/main/generated.
+The last step above should do the following:
+ - copy resources (including the SQL ddl file) into a spot where they can be found at runtime by liquibase
+ - invokes the JOOQ code generator, which will put lots of code under src/main/generated.
 
- To Do:
+To Do:
 
   - write samples that use this non-trivial model to do interesting stuff
   - make it work for other databases?
@@ -20,6 +21,6 @@ into a spot where the liquibase classloader can find it.  Then, it will invoke t
 FYI, my workflow when I created this was:
 
  - edit the SQL file
- - dropdb sample && createdb sample && mvn resources:resources liquibase:update
+ - dropdb sample && createdb sample && mvn clean resources:resources liquibase:update test
 
 This last step will hang/fail if you have a connection open to the database.

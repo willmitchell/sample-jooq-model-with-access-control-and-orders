@@ -37,8 +37,7 @@ CREATE TABLE order_item (
 
 CREATE TABLE "group" (
   id         SERIAL PRIMARY KEY        NOT NULL,
-  account_id BIGINT REFERENCES account NOT NULL,
-  roles      VARCHAR(32) ARRAY         NULL
+  account_id BIGINT REFERENCES account NOT NULL
 );
 
 CREATE TABLE group_membership (

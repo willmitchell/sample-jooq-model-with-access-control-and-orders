@@ -15,6 +15,7 @@
         <hibernateDialect>hibernate:spring:com.pr.domain?dialect=org.hibernate.dialect.PostgreSQL82Dialect
         </hibernateDialect>
         <liquibase-hibernate4.version>3.5</liquibase-hibernate4.version>
+        <groovy-all.version>2.3.8</groovy-all.version>
     </properties>
 
 
@@ -24,6 +25,19 @@
             <artifactId>jooq</artifactId>
             <version>${jooq.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy-all.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -42,6 +56,13 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>6.8.7</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -56,11 +77,11 @@
                         src/main/resources/config/liquibase/${maven.build.timestamp}_changelog.xml
                     </diffChangeLogFile>
                     <driver>${jdbcDriverClass}</driver>
-                    <url>jdbc:postgresql:sample</url>
+                    <url>${env.DB_URL}</url>
                     <defaultSchemaName/>
                     <dropFirst>true</dropFirst>
-                    <!--<username></username>-->
-                    <!--<password></password>-->
+                    <username>${env.DB_USER}</username>
+                    <password>${env.DB_PASS}</password>
                     <referenceUrl>hibernate:spring:com.pr.domain?dialect=org.hibernate.dialect.PostgreSQL82Dialect
                     </referenceUrl>
                     <!--<referenceUrl>${hibernateDialect}</referenceUrl>-->
@@ -116,11 +137,9 @@
                     <!-- JDBC connection parameters -->
                     <jdbc>
                         <driver>${jdbcDriverClass}</driver>
-                        <url>jdbc:postgresql:sample</url>
-<!--replace with your username-->
-                        <user>wm</user>
-
-                        <!--<password></password>-->
+                        <url>${env.DB_URL}</url>
+                        <user>${env.DB_USER}</user>
+                        <password>${env.DB_PASS}</password>
                     </jdbc>
 
                     <!-- Generator parameters -->
@@ -143,8 +162,36 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <!-- 2.8.0-01 and later require maven-compiler-plugin 3.1 or higher -->
+                <version>3.1</version>
+                <configuration>
+                    <compilerId>groovy-eclipse-compiler</compilerId>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <!-- set verbose to be true if you want lots of uninteresting messages -->
+                    <!-- <verbose>true</verbose> -->
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-compiler</artifactId>
+                        <version>2.8.0-01</version>
+                    </dependency>
+                    <!-- for 2.8.0-01 and later you must have an explicit dependency on groovy-eclipse-batch -->
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-eclipse-batch</artifactId>
+                        <version>2.3.4-01</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
         </plugins>
     </build>
+
+
 
 
 </project>
