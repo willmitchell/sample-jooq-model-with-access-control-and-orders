@@ -1,7 +1,11 @@
--- NOTE: The purpose of this model is to teach some ideas about how to deal with relations across many
+-- NOTE: The purpose of this model is to explain how to deal with relations across many
 -- tables when using JOOQ, not to explore what goes into a "user" table.  Throughout the model, the
--- overriding goal is to provide a minimal structure for each table; just enough to support self-descriptive
--- queries.
+-- overriding goal is to provide a minimal structure for each table; just enough to support useful
+-- testing.
+--
+-- Will Mitchell
+-- March 2014
+-- Apache License.
 
 CREATE TABLE "user" (
   id    SERIAL PRIMARY KEY                     NOT NULL,
