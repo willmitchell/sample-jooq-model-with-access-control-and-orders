@@ -3,8 +3,6 @@ CREATE TABLE "user" (
   login VARCHAR(64)                            NOT NULL UNIQUE
 );
 
-CREATE TYPE AccountStatusType AS ENUM ('INITIAL', 'VERIFIED', 'SUSPENDED', 'CLOSED');
-
 CREATE TABLE account (
   id                SERIAL PRIMARY KEY                     NOT NULL,
   parent_account_id BIGINT REFERENCES account              NULL,
@@ -15,8 +13,7 @@ CREATE TABLE asset (
   id          SERIAL PRIMARY KEY             NOT NULL,
   address     VARCHAR(255)                   NOT NULL,
   location    POINT                          NOT NULL,
-  account_id  BIGINT REFERENCES account      NOT NULL,
-  description VARCHAR(2048)                  NULL
+  account_id  BIGINT REFERENCES account      NOT NULL
 );
 
 CREATE TABLE product (
